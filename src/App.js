@@ -7,6 +7,7 @@ const initialState = {
   manager: "",
   players: [],
   balance: 0,
+  value: "",
 };
 
 const reducer = (state, action) => ({ ...state, ...action });
@@ -27,12 +28,36 @@ const App = () => {
     fetchManager();
   }, []);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const accounts = await web3.eth.getAccounts();
+    await lottery.methods.enter().send({
+      from: accounts[0],
+      value: web3.utils.toWei(state.value, "ether"),
+    });
+  };
+
   return (
     <div>
       <h2>Lottery Contract</h2>
       <p>Manager: {state.manager}</p>
       <p>Players: {state.players}</p>
       <p>Balance: {web3.utils.fromWei(state.balance, "ether")} ETH</p>
+
+      <hr />
+
+      <form onSubmit={handleSubmit}>
+        <h4>Want to try your luck?</h4>
+        <div>
+          <label htmlFor="etherAmount">Amount of ether to enter</label>
+          <input
+            id="etherAmount"
+            value={state.value}
+            onChange={(e) => dispatch({ value: e.target.value })}
+          />
+          <button type="submit">Enter</button>
+        </div>
+      </form>
     </div>
   );
 };
