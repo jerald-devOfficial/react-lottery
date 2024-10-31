@@ -8,6 +8,7 @@ const initialState = {
   players: [],
   balance: 0,
   value: "",
+  message: "",
 };
 
 const reducer = (state, action) => ({ ...state, ...action });
@@ -31,18 +32,30 @@ const App = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const accounts = await web3.eth.getAccounts();
+
+    dispatch({ message: "Waiting on transaction success..." });
     await lottery.methods.enter().send({
       from: accounts[0],
       value: web3.utils.toWei(state.value, "ether"),
     });
+    dispatch({ message: "You have been entered!" });
+  };
+
+  const handlePickWinner = async () => {
+    const accounts = await web3.eth.getAccounts();
+    dispatch({ message: "Waiting on transaction success..." });
+    await lottery.methods.pickWinner().send({ from: accounts[0] });
+    dispatch({ message: "A winner has been picked!" });
   };
 
   return (
     <div>
       <h2>Lottery Contract</h2>
-      <p>Manager: {state.manager}</p>
-      <p>Players: {state.players}</p>
-      <p>Balance: {web3.utils.fromWei(state.balance, "ether")} ETH</p>
+      <p>This contract is managed by {state.manager}.</p>
+      <p>
+        There are currently {state.players.length} players entered, competing to
+        win {web3.utils.fromWei(state.balance, "ether")} ETH
+      </p>
 
       <hr />
 
@@ -58,6 +71,11 @@ const App = () => {
           <button type="submit">Enter</button>
         </div>
       </form>
+      <hr />
+      <h1>Ready to pick a winner?</h1>
+      <button onClick={handlePickWinner}>Pick a winner!</button>
+      <hr />
+      <h1>{state.message}</h1>
     </div>
   );
 };
