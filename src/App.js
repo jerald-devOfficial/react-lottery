@@ -20,7 +20,7 @@ const App = () => {
     const fetchManager = async () => {
       const manager = await lottery.methods.manager().call();
       const players = await lottery.methods.getPlayers().call();
-      const balance = await web3.eth.getBalance(manager);
+      const balance = await web3.eth.getBalance(lottery.options.address);
 
       dispatch({ manager });
       dispatch({ players });
